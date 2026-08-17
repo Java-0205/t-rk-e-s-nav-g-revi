@@ -334,7 +334,7 @@ def evaluate_essay():
     }
 
     payload = {
-        "model": "llama3-8b-8192",
+        "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"Topic: {topic}\nEssay: {essay_text}"}
@@ -378,7 +378,7 @@ def chat_essay():
     user_msg = f"Insho/Kontekst: {context_text}\n\nFoydalanuvchi savoli: {user_question}"
 
     payload = {
-        "model": "llama3-8b-8192",
+        "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
