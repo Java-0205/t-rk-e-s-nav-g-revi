@@ -7,10 +7,15 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_o'zingizning_groq_api_kalitingizni_shu_yerga_yozing")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
-# Groq platformasining amaldagi Llama 3.1 8B modeli ID-si
-MODEL_NAME = "llama-3.1-8b-instant"
+# Groq platformasida eng barqaror va bepul ishlaydigan modellar ro'yxati
+PREFERRED_MODELS = [
+    "llama-3.3-70b-versatile",
+    "llama-3.1-70b-versatile",
+    "gemma2-9b-it",
+    "mixtral-8x7b-32768"
+]
 
 SYSTEM_PROMPT = """
 You are an expert Senior Examiner for the Yunus Emre Enstitüsü Turkish Proficiency Exam (TYS).
@@ -317,6 +322,25 @@ HTML_TEMPLATE = """
 </html>
 """
 
+def call_groq_api(payload):
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    # Ro'yxatdagi modellashtirish variantlarini birma-bir sinab ko'radi
+    for model in PREFERRED_MODELS:
+        payload["model"] = model
+        try:
+            res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=30)
+            res_data = res.json()
+            if 'error' not in res_data:
+                return res_data
+        except Exception:
+            continue
+            
+    return {"error": {"message": "Groq API modellari bilan bog'lanib bo'lmadi. API Kalitni tekshiring."}}
+
 @app.route('/')
 def home():
     return render_template_string(HTML_TEMPLATE)
@@ -330,13 +354,7 @@ def evaluate_essay():
     if not essay_text.strip():
         return jsonify({"error": "Metin boş olamaz!"}), 400
 
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
     payload = {
-        "model": MODEL_NAME,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"Topic: {topic}\nEssay: {essay_text}"}
@@ -345,8 +363,7 @@ def evaluate_essay():
     }
 
     try:
-        res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=30)
-        res_data = res.json()
+        res_data = call_groq_api(payload)
         
         if 'error' in res_data:
             return jsonify({"error": res_data['error']['message']}), 500
@@ -355,8 +372,6 @@ def evaluate_essay():
         result_json = json.loads(raw_content)
         
         return jsonify(result_json), 200
-    except requests.exceptions.Timeout:
-        return jsonify({"error": "AI javob berishda vaqt tugadi. Qaytadan urinib ko'ring."}), 504
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -369,18 +384,12 @@ def chat_essay():
     if not user_question.strip():
         return jsonify({"error": "Savol kiritilmadi!"}), 400
 
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
     context_text = essay_text if essay_text.strip() else "Foydalanuvchi hali insho kiritmagan yoki tahlil xulosasi haqida so'ramoqda."
 
     system_msg = "You are a friendly, encouraging Turkish language teacher. Answer user questions in clear Uzbek language."
     user_msg = f"Insho/Kontekst: {context_text}\n\nFoydalanuvchi savoli: {user_question}"
 
     payload = {
-        "model": MODEL_NAME,
         "messages": [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
@@ -388,8 +397,7 @@ def chat_essay():
     }
 
     try:
-        res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=20)
-        res_data = res.json()
+        res_data = call_groq_api(payload)
         
         if 'error' in res_data:
             return jsonify({"reply": f"Groq API xatosi: {res_data['error'].get('message', 'Xatolik')}"}), 200
