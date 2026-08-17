@@ -1,4 +1,5 @@
 import json
+import os
 from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 import requests
@@ -6,8 +7,8 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-# Groq API kalitingizni kiriting
-GROQ_API_KEY = "os.environ.get("GROQ_API_KEY", "your_groq_api_key_here")"
+# Groq API kalitini atrof-muhitdan o'qiydi yoki o'zingizning kalitingizni qo'yishingiz mumkin
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_o'zingizning_groq_api_kalitingizni_shu_yerga_yozing")
 
 SYSTEM_PROMPT = """
 You are an expert Senior Examiner for the Yunus Emre Enstitüsü Turkish Proficiency Exam (TYS).
@@ -333,7 +334,7 @@ def evaluate_essay():
     }
 
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama-3.1-8b-instant",
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"Topic: {topic}\nEssay: {essay_text}"}
@@ -377,7 +378,7 @@ def chat_essay():
     user_msg = f"Insho/Kontekst: {context_text}\n\nFoydalanuvchi savoli: {user_question}"
 
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama-3.1-8b-instant",
         "messages": [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
@@ -397,5 +398,6 @@ def chat_essay():
         return jsonify({"reply": f"Server xatosi: {str(e)}"}), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
-    
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host='0.0.0.0', port=port, debug=True)
+  
