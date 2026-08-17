@@ -7,8 +7,10 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-# Groq API kalitini atrof-muhitdan o'qiydi
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_o'zingizning_groq_api_kalitingizni_shu_yerga_yozing")
+
+# Groq platformasida tavsiya etilgan rasmiy model
+MODEL_NAME = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """
 You are an expert Senior Examiner for the Yunus Emre Enstitüsü Turkish Proficiency Exam (TYS).
@@ -334,7 +336,7 @@ def evaluate_essay():
     }
 
     payload = {
-        "model": "llama-3.1-8b-instant",
+        "model": MODEL_NAME,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"Topic: {topic}\nEssay: {essay_text}"}
@@ -378,7 +380,7 @@ def chat_essay():
     user_msg = f"Insho/Kontekst: {context_text}\n\nFoydalanuvchi savoli: {user_question}"
 
     payload = {
-        "model": "llama-3.1-8b-instant",
+        "model": MODEL_NAME,
         "messages": [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
