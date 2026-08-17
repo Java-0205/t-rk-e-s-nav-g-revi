@@ -9,8 +9,8 @@ CORS(app)
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_o'zingizning_groq_api_kalitingizni_shu_yerga_yozing")
 
-# Kafolatlangan va universal model nomi
-MODEL_NAME = "llama3-8b-8192"
+# Groq platformasining amaldagi Llama 3.1 8B modeli ID-si
+MODEL_NAME = "llama-3.1-8b-instant"
 
 SYSTEM_PROMPT = """
 You are an expert Senior Examiner for the Yunus Emre Enstitüsü Turkish Proficiency Exam (TYS).
