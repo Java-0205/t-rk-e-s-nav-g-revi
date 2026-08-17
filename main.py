@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Groq API kalitingizni kiriting
-GROQ_API_KEY = "   ..."
+GROQ_API_KEY = "os.environ.get("GROQ_API_KEY", "your_groq_api_key_here")"
 
 SYSTEM_PROMPT = """
 You are an expert Senior Examiner for the Yunus Emre Enstitüsü Turkish Proficiency Exam (TYS).
