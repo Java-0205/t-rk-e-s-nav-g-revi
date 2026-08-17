@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-# Groq API kalitini atrof-muhitdan o'qiydi yoki o'zingizning kalitingizni qo'yishingiz mumkin
+# Groq API kalitini atrof-muhitdan o'qiydi
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_o'zingizning_groq_api_kalitingizni_shu_yerga_yozing")
 
 SYSTEM_PROMPT = """
@@ -334,7 +334,7 @@ def evaluate_essay():
     }
 
     payload = {
-        "model": "llama-3.1-8b-instant",
+        "model": "llama3-8b-8192",
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"Topic: {topic}\nEssay: {essay_text}"}
@@ -378,7 +378,7 @@ def chat_essay():
     user_msg = f"Insho/Kontekst: {context_text}\n\nFoydalanuvchi savoli: {user_question}"
 
     payload = {
-        "model": "llama-3.1-8b-instant",
+        "model": "llama3-8b-8192",
         "messages": [
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_msg}
